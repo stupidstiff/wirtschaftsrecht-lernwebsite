@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2. Arbeitsvertrag - Wirtschaftsrecht</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #333;
+            --white: #ffffff;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.2);
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            --border-radius: 12px;
+            --sidebar-width: 280px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--dark); background: var(--light); }
+
+        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh; background: var(--white); box-shadow: var(--shadow); overflow-y: auto; z-index: 1000; transition: transform 0.3s ease; }
+        .sidebar-header { background: var(--gradient); color: var(--white); padding: 20px; text-align: center; }
+        .sidebar-header h1 { font-size: 1.3em; margin-bottom: 5px; }
+        .sidebar-header p { font-size: 0.85em; opacity: 0.9; }
+        .nav-menu { padding: 15px 0; list-style: none; }
+        .nav-menu li { border-bottom: 1px solid #eee; }
+        .nav-menu a { display: block; padding: 14px 20px; color: var(--dark); text-decoration: none; font-size: 0.95em; transition: all 0.3s; border-left: 3px solid transparent; }
+        .nav-menu a:hover, .nav-menu a.active { background: rgba(102, 126, 234, 0.1); border-left-color: var(--primary); color: var(--primary); }
+        .nav-menu .nav-highlight a { background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%); font-weight: 600; color: #856404; }
+        .nav-menu .nav-highlight a:hover { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: var(--white); }
+        .menu-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 1100; background: var(--gradient); color: var(--white); border: none; padding: 12px 15px; border-radius: 8px; cursor: pointer; font-size: 1.2em; box-shadow: var(--shadow); }
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
+        .page-header { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: var(--white); padding: 60px 40px; text-align: center; }
+        .page-header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .page-header p { font-size: 1.1em; opacity: 0.95; }
+        .breadcrumb { background: var(--white); padding: 15px 30px; font-size: 0.9em; border-bottom: 1px solid #eee; }
+        .breadcrumb a { color: var(--primary); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb span { color: #666; }
+        .content-wrapper { max-width: 1000px; margin: 0 auto; padding: 40px 30px; }
+        h2 { color: var(--primary); font-size: 2em; margin-bottom: 25px; padding-bottom: 12px; border-bottom: 3px solid var(--primary); }
+        h3 { color: var(--primary-dark); font-size: 1.4em; margin: 30px 0 15px; }
+        h4 { color: #555; font-size: 1.15em; margin: 20px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .info-box { padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid; }
+        .info-box.highlight { background: #fff3cd; border-color: var(--warning); }
+        .info-box.success { background: #d4edda; border-color: var(--success); }
+        .info-box.info { background: #d1ecf1; border-color: var(--info); }
+        .info-box.danger { background: #f8d7da; border-color: var(--danger); }
+        .info-box.primary { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); border-color: var(--primary); }
+        .info-box h4 { margin-top: 0; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: var(--shadow); background: var(--white); border-radius: 8px; overflow: hidden; }
+        th { background: var(--gradient); color: var(--white); padding: 15px; text-align: left; font-weight: 600; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        tr:hover { background: #e9ecef; }
+        ul, ol { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 20px 0; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 2px solid #eee; }
+        .nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--gradient); color: var(--white); text-decoration: none; border-radius: 8px; font-weight: 500; transition: transform 0.2s, box-shadow 0.2s; }
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .nav-btn.prev { background: #6c757d; }
+        .back-to-top { position: fixed; bottom: 30px; right: 30px; background: var(--gradient); color: var(--white); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.5em; box-shadow: var(--shadow-lg); opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 900; }
+        .back-to-top.visible { opacity: 1; visibility: visible; }
+        .back-to-top:hover { transform: translateY(-5px); }
+        .progress-bar { position: fixed; top: 0; left: var(--sidebar-width); right: 0; height: 4px; background: rgba(102, 126, 234, 0.2); z-index: 999; }
+        .progress-bar-fill { height: 100%; background: var(--gradient); width: 0%; transition: width 0.1s; }
+        footer { background: var(--dark); color: var(--white); padding: 30px; text-align: center; margin-left: var(--sidebar-width); }
+        footer p { margin-bottom: 10px; text-align: center; }
+
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .menu-toggle { display: block; }
+            .main-content, footer { margin-left: 0; }
+            .progress-bar { left: 0; }
+            .two-column { grid-template-columns: 1fr; }
+            .page-header { padding: 40px 20px; padding-top: 70px; }
+            .page-header h1 { font-size: 1.8em; }
+            .content-wrapper { padding: 20px 15px; }
+            h2 { font-size: 1.5em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar"><div class="progress-bar-fill" id="progressBar"></div></div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menü öffnen">☰</button>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1>📚 Wirtschaftsrecht</h1>
+            <p>ITS Stuttgart - Prüfungsvorbereitung</p>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="index.html">🏠 Startseite</a></li>
+            <li><a href="berufsausbildung.html">1. Berufsausbildung & BBiG</a></li>
+            <li><a href="arbeitsvertrag.html" class="active">2. Arbeitsvertrag</a></li>
+            <li><a href="arbeitszeugnisse.html">3. Arbeitszeugnisse</a></li>
+            <li><a href="arbeitsschutz.html">4. Sozialer Arbeitsschutz</a></li>
+            <li><a href="beendigung.html">5. Beendigung</a></li>
+            <li class="nav-highlight"><a href="quiz.html">🎯 Quiz & Übungen</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>2. Arbeitsvertrag</h1>
+            <p>Von der Bewerbung zum Vertragsabschluss</p>
+        </header>
+
+        <div class="breadcrumb">
+            <a href="index.html">Startseite</a> <span>›</span> <span>Arbeitsvertrag</span>
+        </div>
+
+        <div class="content-wrapper">
+            <section id="av-weg">
+                <h3>Weg zum Arbeitsvertrag</h3>
+
+                <div class="info-box primary">
+                    <h4>Von der Stellenausschreibung bis zum Abschluss</h4>
+                    <p>Der Weg zum Arbeitsvertrag besteht aus vier Phasen: <strong>Stellenausschreibung → Bewerbungsunterlagen → Vorstellungsgespräch → Abschluss</strong></p>
+                </div>
+
+                <h4>1. Stellenausschreibung</h4>
+                <p>Stellenanzeigen finden sich bei:</p>
+                <ul>
+                    <li>Agentur für Arbeit</li>
+                    <li>Internet (Jobbörsen, Unternehmenswebsites)</li>
+                    <li>Zeitung</li>
+                    <li>Radio</li>
+                    <li>Bekannte und Freunde</li>
+                </ul>
+
+                <h4>2. Bewerbungsunterlagen</h4>
+                <ul>
+                    <li>Deckblatt (optional)</li>
+                    <li>Anschreiben</li>
+                    <li>Lebenslauf</li>
+                    <li>Zeugnisse</li>
+                    <li>Bescheinigungen</li>
+                    <li>Arbeitszeugnis (bei vorheriger Beschäftigung)</li>
+                </ul>
+            </section>
+
+            <section id="av-vorstellungsgespraech">
+                <h3>Vorstellungsgespräch</h3>
+
+                <h4>Typischer Ablauf</h4>
+                <ol>
+                    <li>Vorstellung des Unternehmens</li>
+                    <li>Vorstellung des Bewerbers</li>
+                    <li>Fragen an den Bewerber</li>
+                    <li>Fragen an das Unternehmen</li>
+                </ol>
+
+                <div class="info-box danger">
+                    <h4>Unzulässige Fragen im Vorstellungsgespräch</h4>
+                    <p>Folgende Fragen müssen nicht wahrheitsgemäß beantwortet werden:</p>
+                    <ul>
+                        <li>Eheschließung / Familienplanung</li>
+                        <li>Gewerkschaftszugehörigkeit</li>
+                        <li>Religion</li>
+                        <li>Schwangerschaft</li>
+                        <li>Behinderung (sofern nicht arbeitsrelevant)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="av-abschluss">
+                <h3>Vertragsabschluss</h3>
+
+                <div class="info-box info">
+                    <h4>Zustandekommen</h4>
+                    <p>Der Arbeitsvertrag ist <strong>formfrei</strong> - Vertragsinhalte können in einer bestimmten Frist nachgereicht werden (Nachweisgesetz). Da mündliche Vereinbarungen schwer nachweisbar sind, ist die <strong>Schriftform dringend zu empfehlen</strong>.</p>
+                </div>
+
+                <h4>Mindestinhalt nach NachwG § 2(1)</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mindestinhalt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Namen und Anschrift der Vertragsparteien</td></tr>
+                        <tr><td>Beginn des Arbeitsverhältnisses</td></tr>
+                        <tr><td>Arbeitsort</td></tr>
+                        <tr><td>Tätigkeitsbeschreibung</td></tr>
+                        <tr><td>Höhe des Arbeitsentgelts</td></tr>
+                        <tr><td>Arbeitszeit</td></tr>
+                        <tr><td>Urlaubsdauer</td></tr>
+                        <tr><td>Kündigungsbedingungen</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box highlight">
+                    <h4>Wichtige Regelungen</h4>
+                    <ul>
+                        <li><strong>Salvatorische Klausel (§ 139 BGB):</strong> Unwirksame Klauseln führen nicht zur Nichtigkeit des gesamten Vertrags - an ihre Stelle treten gesetzliche Bestimmungen.</li>
+                        <li><strong>Sittenwidrigkeit (§ 138 BGB):</strong> Verträge, die auf Ausbeutung oder Zwangslage basieren, sind nichtig.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="av-unterschiede">
+                <h3>Unterschied Ausbildungs- vs. Arbeitsvertrag</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspekt</th>
+                            <th>Arbeitsvertrag</th>
+                            <th>Ausbildungsvertrag</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Vertragsgegenstand</strong></td>
+                            <td>Arbeitsleistung</td>
+                            <td>Berufsausbildung in anerkanntem Beruf</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vertragspartner</strong></td>
+                            <td>AG und AN</td>
+                            <td>Ausbildender und Azubi (+ gesetzl. Vertreter)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vertragsdauer</strong></td>
+                            <td>Befristet oder unbefristet</td>
+                            <td>Befristet (2-3,5 Jahre)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vergütung</strong></td>
+                            <td>Entgelt (Mindestlohn)</td>
+                            <td>Ausbildungsvergütung</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kündigung nach Probezeit</strong></td>
+                            <td>Ordentlich oder außerordentlich</td>
+                            <td>Nur fristlos bei wichtigem Grund oder 4 Wochen bei Berufsaufgabe/-wechsel</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Probezeit</strong></td>
+                            <td>Optional bis 6 Monate</td>
+                            <td>Pflicht: 1-4 Monate</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rechtsgrundlage</strong></td>
+                            <td>BGB</td>
+                            <td>BBiG</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="av-pflichten">
+                <h3>Pflichten Arbeitgeber und Arbeitnehmer</h3>
+
+                <div class="two-column">
+                    <div>
+                        <h4>Pflichten des Arbeitgebers</h4>
+                        <ul>
+                            <li><strong>Beschäftigungspflicht</strong></li>
+                            <li><strong>Gleichbehandlungspflicht</strong></li>
+                            <li><strong>Fürsorgepflicht</strong></li>
+                            <li><strong>Zeugnispflicht</strong></li>
+                            <li><strong>Entlohnungspflicht</strong></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Pflichten des Arbeitnehmers</h4>
+                        <ul>
+                            <li><strong>Arbeitsleistung</strong></li>
+                            <li><strong>Treue-/Gehorsamspflicht</strong></li>
+                            <li><strong>Verschwiegenheitspflicht</strong></li>
+                            <li><strong>Sorgfaltspflicht</strong></li>
+                            <li><strong>Wettbewerbsverbot</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <div class="nav-buttons">
+                <a href="berufsausbildung.html" class="nav-btn prev">← Zurück: Berufsausbildung</a>
+                <a href="arbeitszeugnisse.html" class="nav-btn">Weiter: Arbeitszeugnisse →</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 Wirtschaftsrecht Lernwebsite - ITS Stuttgart</p>
+    </footer>
+
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            menuToggle.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+        });
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 992 && !sidebar.contains(e.target) && !menuToggle.contains(e.target) && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                menuToggle.textContent = '☰';
+            }
+        });
+
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => { backToTop.classList.toggle('visible', window.pageYOffset > 300); });
+        backToTop.addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+        const progressBar = document.getElementById('progressBar');
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            progressBar.style.width = (winScroll / height) * 100 + '%';
+        });
+
+        function updateProgress() {
+            const progress = JSON.parse(localStorage.getItem('wirtschaftsrecht_progress') || '{}');
+            if (!progress.chapters) progress.chapters = {};
+            const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+            const currentProgress = progress.chapters.arbeitsvertrag || 0;
+            if (scrollPercent > currentProgress) {
+                progress.chapters.arbeitsvertrag = Math.min(scrollPercent, 100);
+                localStorage.setItem('wirtschaftsrecht_progress', JSON.stringify(progress));
+            }
+        }
+        window.addEventListener('scroll', updateProgress);
+        updateProgress();
+    </script>
+</body>
+</html>

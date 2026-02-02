@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz & Übungen - Wirtschaftsrecht</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #333;
+            --white: #ffffff;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.2);
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            --border-radius: 12px;
+            --sidebar-width: 280px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--dark); background: var(--light); }
+
+        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh; background: var(--white); box-shadow: var(--shadow); overflow-y: auto; z-index: 1000; transition: transform 0.3s ease; }
+        .sidebar-header { background: var(--gradient); color: var(--white); padding: 20px; text-align: center; }
+        .sidebar-header h1 { font-size: 1.3em; margin-bottom: 5px; }
+        .sidebar-header p { font-size: 0.85em; opacity: 0.9; }
+        .nav-menu { padding: 15px 0; list-style: none; }
+        .nav-menu li { border-bottom: 1px solid #eee; }
+        .nav-menu a { display: block; padding: 14px 20px; color: var(--dark); text-decoration: none; font-size: 0.95em; transition: all 0.3s; border-left: 3px solid transparent; }
+        .nav-menu a:hover, .nav-menu a.active { background: rgba(102, 126, 234, 0.1); border-left-color: var(--primary); color: var(--primary); }
+        .nav-menu .nav-highlight a { background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%); font-weight: 600; color: #856404; }
+        .nav-menu .nav-highlight a.active { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: var(--white); }
+        .menu-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 1100; background: var(--gradient); color: var(--white); border: none; padding: 12px 15px; border-radius: 8px; cursor: pointer; font-size: 1.2em; box-shadow: var(--shadow); }
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
+        .page-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: var(--white); padding: 60px 40px; text-align: center; }
+        .page-header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .page-header p { font-size: 1.1em; opacity: 0.95; }
+        .content-wrapper { max-width: 1000px; margin: 0 auto; padding: 40px 30px; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 5px; flex-wrap: wrap; background: var(--white); padding: 10px; border-radius: var(--border-radius); margin-bottom: 30px; box-shadow: var(--shadow); }
+        .tab-btn { padding: 12px 24px; border: none; background: transparent; color: var(--dark); font-weight: 600; cursor: pointer; border-radius: 8px; transition: all 0.3s; font-size: 0.95em; }
+        .tab-btn:hover { background: rgba(102, 126, 234, 0.1); }
+        .tab-btn.active { background: var(--gradient); color: var(--white); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Category Select */
+        .category-select { margin-bottom: 25px; }
+        .category-select label { font-weight: 600; color: var(--primary-dark); margin-right: 10px; }
+        .category-select select { padding: 10px 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 1em; cursor: pointer; }
+
+        /* Quiz Container */
+        .quiz-container { background: var(--white); border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 30px; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #eee; }
+        .quiz-progress { font-size: 0.9em; color: #666; }
+        .quiz-score { font-weight: 600; color: var(--primary); }
+
+        .question-card { margin-bottom: 30px; }
+        .question-text { font-size: 1.2em; font-weight: 600; color: var(--dark); margin-bottom: 20px; line-height: 1.5; }
+        .question-number { color: var(--primary); }
+
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option { padding: 15px 20px; background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 12px; }
+        .option:hover { border-color: var(--primary); background: rgba(102, 126, 234, 0.05); }
+        .option.selected { border-color: var(--primary); background: rgba(102, 126, 234, 0.1); }
+        .option.correct { border-color: var(--success); background: #d4edda; }
+        .option.wrong { border-color: var(--danger); background: #f8d7da; }
+        .option.disabled { cursor: not-allowed; opacity: 0.7; }
+        .option-marker { width: 24px; height: 24px; border: 2px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .option.correct .option-marker { background: var(--success); border-color: var(--success); color: white; }
+        .option.wrong .option-marker { background: var(--danger); border-color: var(--danger); color: white; }
+
+        .explanation { margin-top: 15px; padding: 15px; background: #d1ecf1; border-radius: 8px; border-left: 4px solid var(--info); display: none; }
+        .explanation.show { display: block; animation: fadeIn 0.3s ease; }
+
+        .quiz-actions { display: flex; gap: 15px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
+        .btn { padding: 12px 30px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 1em; }
+        .btn-primary { background: var(--gradient); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Result */
+        .result-card { text-align: center; padding: 40px; }
+        .result-score { font-size: 4em; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+        .result-text { font-size: 1.3em; margin-bottom: 20px; }
+        .result-details { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; }
+        .result-stat { text-align: center; }
+        .result-stat-value { font-size: 2em; font-weight: 700; }
+        .result-stat-label { color: #666; font-size: 0.9em; }
+        .result-stat.correct .result-stat-value { color: var(--success); }
+        .result-stat.wrong .result-stat-value { color: var(--danger); }
+
+        /* Flashcards */
+        .flashcard-container { perspective: 1000px; margin-bottom: 30px; }
+        .flashcard { width: 100%; min-height: 300px; position: relative; transform-style: preserve-3d; transition: transform 0.6s; cursor: pointer; }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back { position: absolute; width: 100%; min-height: 300px; backface-visibility: hidden; border-radius: var(--border-radius); box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+        .flashcard-front { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .flashcard-back { background: var(--white); transform: rotateY(180deg); }
+        .flashcard-front h3 { font-size: 1.5em; margin-bottom: 15px; }
+        .flashcard-front p { font-size: 1.1em; opacity: 0.9; }
+        .flashcard-back h4 { color: var(--primary); margin-bottom: 15px; }
+        .flashcard-back p { color: var(--dark); font-size: 1.1em; line-height: 1.6; }
+        .flashcard-hint { position: absolute; bottom: 15px; font-size: 0.85em; opacity: 0.7; }
+
+        .flashcard-controls { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .flashcard-progress { text-align: center; margin-bottom: 20px; color: #666; }
+
+        /* Fill in the Blank */
+        .fill-blank-text { font-size: 1.2em; line-height: 2; margin-bottom: 20px; }
+        .blank-input { border: none; border-bottom: 2px solid var(--primary); padding: 5px 10px; font-size: 1em; width: 150px; text-align: center; background: transparent; margin: 0 5px; }
+        .blank-input:focus { outline: none; border-color: var(--primary-dark); }
+        .blank-input.correct { border-color: var(--success); color: var(--success); }
+        .blank-input.wrong { border-color: var(--danger); color: var(--danger); }
+
+        /* Matching */
+        .matching-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .matching-column h4 { margin-bottom: 15px; color: var(--primary); }
+        .matching-item { padding: 15px; background: var(--white); border: 2px solid #e9ecef; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s; }
+        .matching-item:hover { border-color: var(--primary); }
+        .matching-item.selected { border-color: var(--primary); background: rgba(102, 126, 234, 0.1); }
+        .matching-item.matched { border-color: var(--success); background: #d4edda; cursor: default; }
+        .matching-item.wrong { border-color: var(--danger); background: #f8d7da; }
+        .matching-number { display: inline-block; width: 24px; height: 24px; background: var(--primary); color: white; border-radius: 50%; text-align: center; line-height: 24px; font-size: 0.8em; margin-right: 10px; }
+
+        /* Score Display */
+        .score-display { position: fixed; top: 20px; right: 30px; background: var(--white); padding: 15px 25px; border-radius: var(--border-radius); box-shadow: var(--shadow-lg); z-index: 900; }
+        .score-display .score-value { font-size: 1.5em; font-weight: 700; color: var(--primary); }
+        .score-display .score-label { font-size: 0.85em; color: #666; }
+
+        footer { background: var(--dark); color: var(--white); padding: 30px; text-align: center; margin-left: var(--sidebar-width); }
+        footer p { margin-bottom: 10px; text-align: center; }
+
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .menu-toggle { display: block; }
+            .main-content, footer { margin-left: 0; }
+            .page-header { padding: 40px 20px; padding-top: 70px; }
+            .page-header h1 { font-size: 1.8em; }
+            .content-wrapper { padding: 20px 15px; }
+            .tabs { justify-content: center; }
+            .tab-btn { padding: 10px 16px; font-size: 0.85em; }
+            .matching-container { grid-template-columns: 1fr; }
+            .score-display { top: auto; bottom: 20px; right: 20px; left: 20px; text-align: center; }
+            .result-details { flex-direction: column; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menü öffnen">☰</button>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1>📚 Wirtschaftsrecht</h1>
+            <p>ITS Stuttgart - Prüfungsvorbereitung</p>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="index.html">🏠 Startseite</a></li>
+            <li><a href="berufsausbildung.html">1. Berufsausbildung & BBiG</a></li>
+            <li><a href="arbeitsvertrag.html">2. Arbeitsvertrag</a></li>
+            <li><a href="arbeitszeugnisse.html">3. Arbeitszeugnisse</a></li>
+            <li><a href="arbeitsschutz.html">4. Sozialer Arbeitsschutz</a></li>
+            <li><a href="beendigung.html">5. Beendigung</a></li>
+            <li class="nav-highlight"><a href="quiz.html" class="active">🎯 Quiz & Übungen</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>🎯 Quiz & Übungen</h1>
+            <p>Teste dein Wissen mit interaktiven Lernmethoden</p>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('quiz')">📝 Multiple Choice</button>
+                <button class="tab-btn" onclick="showTab('flashcards')">🃏 Karteikarten</button>
+                <button class="tab-btn" onclick="showTab('fillblank')">✏️ Lückentext</button>
+                <button class="tab-btn" onclick="showTab('matching')">🔗 Zuordnung</button>
+            </div>
+
+            <!-- Score Display -->
+            <div class="score-display">
+                <div class="score-value" id="totalScore">0</div>
+                <div class="score-label">Gesamtpunkte</div>
+            </div>
+
+            <!-- Multiple Choice Quiz -->
+            <div id="quiz" class="tab-content active">
+                <div class="category-select">
+                    <label for="quizCategory">Kategorie:</label>
+                    <select id="quizCategory" onchange="loadQuiz()">
+                        <option value="all">Alle Themen</option>
+                        <option value="bbig">1. BBiG & Ausbildung</option>
+                        <option value="arbeitsvertrag">2. Arbeitsvertrag</option>
+                        <option value="zeugnisse">3. Arbeitszeugnisse</option>
+                        <option value="arbeitsschutz">4. Arbeitsschutz</option>
+                        <option value="beendigung">5. Beendigung</option>
+                    </select>
+                </div>
+
+                <div class="quiz-container" id="quizContainer">
+                    <!-- Quiz content will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Flashcards -->
+            <div id="flashcards" class="tab-content">
+                <div class="category-select">
+                    <label for="flashcardCategory">Kategorie:</label>
+                    <select id="flashcardCategory" onchange="loadFlashcards()">
+                        <option value="all">Alle Themen</option>
+                        <option value="bbig">1. BBiG & Ausbildung</option>
+                        <option value="arbeitsvertrag">2. Arbeitsvertrag</option>
+                        <option value="zeugnisse">3. Arbeitszeugnisse</option>
+                        <option value="arbeitsschutz">4. Arbeitsschutz</option>
+                        <option value="beendigung">5. Beendigung</option>
+                    </select>
+                </div>
+
+                <div class="flashcard-progress" id="flashcardProgress">Karte 1 von 10</div>
+
+                <div class="flashcard-container">
+                    <div class="flashcard" id="flashcard" onclick="flipCard()">
+                        <div class="flashcard-front">
+                            <h3 id="flashcardQuestion">Frage laden...</h3>
+                            <p class="flashcard-hint">Klicken zum Umdrehen</p>
+                        </div>
+                        <div class="flashcard-back">
+                            <h4>Antwort:</h4>
+                            <p id="flashcardAnswer">Antwort laden...</p>
+                            <p class="flashcard-hint">Klicken zum Zurückdrehen</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flashcard-controls">
+                    <button class="btn btn-secondary" onclick="prevFlashcard()">← Vorherige</button>
+                    <button class="btn btn-danger" onclick="markFlashcard('wrong')" style="background: var(--danger);">✗ Nochmal üben</button>
+                    <button class="btn btn-success" onclick="markFlashcard('correct')" style="background: var(--success);">✓ Gewusst</button>
+                    <button class="btn btn-secondary" onclick="nextFlashcard()">Nächste →</button>
+                </div>
+            </div>
+
+            <!-- Fill in the Blank -->
+            <div id="fillblank" class="tab-content">
+                <div class="quiz-container">
+                    <h3 style="color: var(--primary); margin-bottom: 20px;">Lückentext-Übungen</h3>
+                    <p style="color: #666; margin-bottom: 30px;">Fülle die Lücken mit den richtigen Begriffen aus.</p>
+
+                    <div id="fillBlankContainer">
+                        <!-- Fill blank exercises loaded here -->
+                    </div>
+
+                    <div class="quiz-actions">
+                        <button class="btn btn-primary" onclick="checkFillBlanks()">Antworten prüfen</button>
+                        <button class="btn btn-secondary" onclick="resetFillBlanks()">Zurücksetzen</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matching -->
+            <div id="matching" class="tab-content">
+                <div class="quiz-container">
+                    <h3 style="color: var(--primary); margin-bottom: 20px;">Zuordnungsübung</h3>
+                    <p style="color: #666; margin-bottom: 30px;">Ordne die Begriffe den passenden Definitionen zu. Klicke zuerst links, dann rechts.</p>
+
+                    <div class="matching-container" id="matchingContainer">
+                        <!-- Matching exercises loaded here -->
+                    </div>
+
+                    <div class="quiz-actions" style="margin-top: 30px;">
+                        <button class="btn btn-secondary" onclick="resetMatching()">Neu starten</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 Wirtschaftsrecht Lernwebsite - ITS Stuttgart</p>
+    </footer>
+
+    <script>
+        // ============ DATA ============
+        const quizData = {
+            bbig: [
+                {
+                    question: "Welcher Paragraf regelt die Probezeit im Ausbildungsverhältnis?",
+                    options: ["§ 10 BBiG", "§ 15 BBiG", "§ 20 BBiG", "§ 25 BBiG"],
+                    correct: 2,
+                    explanation: "§ 20 BBiG regelt die Probezeit im Ausbildungsverhältnis. Sie muss mindestens 1 Monat und darf höchstens 4 Monate betragen."
+                },
+                {
+                    question: "Wer sind die Vertragspartner beim Ausbildungsvertrag bei minderjährigen Auszubildenden?",
+                    options: ["Nur Ausbildender und Auszubildender", "Ausbildender, Auszubildender und gesetzliche Vertreter", "Ausbilder und Auszubildender", "Nur gesetzliche Vertreter"],
+                    correct: 1,
+                    explanation: "Bei minderjährigen Auszubildenden müssen auch die gesetzlichen Vertreter (i.d.R. die Eltern) den Ausbildungsvertrag unterschreiben."
+                },
+                {
+                    question: "Wie lang ist die Kündigungsfrist während der Probezeit im Ausbildungsverhältnis?",
+                    options: ["2 Wochen", "4 Wochen", "Keine Frist (fristlos)", "1 Monat"],
+                    correct: 2,
+                    explanation: "Während der Probezeit kann das Ausbildungsverhältnis jederzeit ohne Einhaltung einer Kündigungsfrist gekündigt werden (§ 22 Abs. 1 BBiG)."
+                },
+                {
+                    question: "Wie viele Werktage Mindesturlaub hat ein 16-jähriger Auszubildender nach JArbSchG?",
+                    options: ["24 Werktage", "25 Werktage", "27 Werktage", "30 Werktage"],
+                    correct: 2,
+                    explanation: "Wer zu Beginn des Kalenderjahres noch nicht 17 Jahre alt ist, hat Anspruch auf 27 Werktage Urlaub (§ 19 JArbSchG)."
+                },
+                {
+                    question: "Welche Pflicht des Auszubildenden ist im § 13 Abs. 1 Nr. 3 BBiG geregelt?",
+                    options: ["Lernpflicht", "Berufsschulpflicht", "Schweigepflicht", "Berichtsheftpflicht"],
+                    correct: 2,
+                    explanation: "§ 13 Abs. 1 Nr. 3 BBiG regelt die Schweigepflicht über Betriebs- und Geschäftsgeheimnisse."
+                }
+            ],
+            arbeitsvertrag: [
+                {
+                    question: "Welche Fragen sind im Vorstellungsgespräch unzulässig?",
+                    options: ["Fragen zu Berufserfahrung", "Fragen zur Familienplanung", "Fragen zur Qualifikation", "Fragen zu Gehaltsvorstellungen"],
+                    correct: 1,
+                    explanation: "Fragen zur Familienplanung, Schwangerschaft, Religion oder Gewerkschaftszugehörigkeit sind unzulässig und müssen nicht wahrheitsgemäß beantwortet werden."
+                },
+                {
+                    question: "Was regelt das Nachweisgesetz (NachwG) § 2?",
+                    options: ["Kündigungsfristen", "Mindestinhalte des Arbeitsvertrags", "Urlaubsanspruch", "Arbeitszeit"],
+                    correct: 1,
+                    explanation: "Das NachwG § 2 regelt die wesentlichen Vertragsbedingungen, die der Arbeitgeber dem Arbeitnehmer schriftlich nachweisen muss."
+                },
+                {
+                    question: "In welcher Form muss der Arbeitsvertrag abgeschlossen werden?",
+                    options: ["Nur schriftlich", "Nur mündlich", "Formfrei (schriftlich empfohlen)", "Nur notariell"],
+                    correct: 2,
+                    explanation: "Der Arbeitsvertrag ist formfrei, kann also auch mündlich geschlossen werden. Schriftform ist jedoch dringend zu empfehlen."
+                },
+                {
+                    question: "Wie lange darf die Probezeit im Arbeitsvertrag maximal sein?",
+                    options: ["3 Monate", "4 Monate", "6 Monate", "12 Monate"],
+                    correct: 2,
+                    explanation: "Die Probezeit im Arbeitsverhältnis darf maximal 6 Monate betragen (§ 622 Abs. 3 BGB)."
+                }
+            ],
+            zeugnisse: [
+                {
+                    question: "Was bedeutet die Formulierung 'stets zu unserer vollsten Zufriedenheit' im Arbeitszeugnis?",
+                    options: ["Note 4 - ausreichend", "Note 3 - befriedigend", "Note 2 - gut", "Note 1 - sehr gut"],
+                    correct: 3,
+                    explanation: "'Stets zu unserer vollsten Zufriedenheit' entspricht der Note 1 (sehr gut) in der Zeugnis-Geheimsprache."
+                },
+                {
+                    question: "Was ist ein Warnsignal im Arbeitszeugnis?",
+                    options: ["'Stets vorbildlich'", "'War bemüht'", "'Sehr engagiert'", "'Überdurchschnittlich'"],
+                    correct: 1,
+                    explanation: "'War bemüht' ist ein klassisches Warnsignal und bedeutet, dass der Mitarbeiter es versucht hat, aber nicht erfolgreich war."
+                },
+                {
+                    question: "Was bedeutet es, wenn im Zeugnis 'Kollegen und Vorgesetzte' in dieser Reihenfolge genannt werden?",
+                    options: ["Besonders gutes Verhältnis", "Probleme mit Vorgesetzten", "Normale Formulierung", "Führungsqualitäten"],
+                    correct: 1,
+                    explanation: "Die richtige Reihenfolge ist 'Vorgesetzten und Kollegen'. Eine Umkehrung deutet auf Probleme mit Vorgesetzten hin."
+                },
+                {
+                    question: "Wann muss der Arbeitgeber bei einem Arbeitsverhältnis ein Zeugnis ausstellen?",
+                    options: ["Immer automatisch", "Nur auf Verlangen des AN", "Nur bei Kündigung durch AG", "Nie"],
+                    correct: 1,
+                    explanation: "Bei Arbeitsverhältnissen muss ein Zeugnis nur auf Verlangen des Arbeitnehmers ausgestellt werden."
+                }
+            ],
+            arbeitsschutz: [
+                {
+                    question: "Wie lange ist die maximale Arbeitszeit pro Tag für Jugendliche nach JArbSchG?",
+                    options: ["6 Stunden", "8 Stunden", "10 Stunden", "Keine Begrenzung"],
+                    correct: 1,
+                    explanation: "Jugendliche dürfen maximal 8 Stunden am Tag arbeiten (§ 8 JArbSchG)."
+                },
+                {
+                    question: "Wie lange muss die Ruhezeit zwischen zwei Arbeitstagen für Erwachsene mindestens sein?",
+                    options: ["8 Stunden", "10 Stunden", "11 Stunden", "12 Stunden"],
+                    correct: 2,
+                    explanation: "Erwachsene müssen mindestens 11 Stunden Ruhezeit zwischen zwei Arbeitstagen haben (§ 5 ArbZG)."
+                },
+                {
+                    question: "Was bedeutet das TOP-Prinzip im Arbeitsschutz?",
+                    options: ["Technisch-Organisatorisch-Persönlich", "Teamwork-Organisation-Prävention", "Training-Optimierung-Planung", "Technik-Ordnung-Personal"],
+                    correct: 0,
+                    explanation: "Das TOP-Prinzip steht für Technische, Organisatorische und Persönliche Schutzmaßnahmen (in dieser Reihenfolge)."
+                },
+                {
+                    question: "Wie lange ist die Schutzfrist nach einer Normalgeburt im MuSchG?",
+                    options: ["4 Wochen", "6 Wochen", "8 Wochen", "12 Wochen"],
+                    correct: 2,
+                    explanation: "Nach einer Normalgeburt beträgt die Schutzfrist 8 Wochen (§ 3 MuSchG)."
+                },
+                {
+                    question: "Wie viele Minuten Pause müssen Jugendliche bei mehr als 6 Stunden Arbeit mindestens haben?",
+                    options: ["30 Minuten", "45 Minuten", "60 Minuten", "90 Minuten"],
+                    correct: 2,
+                    explanation: "Jugendliche müssen bei mehr als 6 Stunden Arbeit mindestens 60 Minuten Pause haben (§ 11 JArbSchG)."
+                }
+            ],
+            beendigung: [
+                {
+                    question: "Wie lang ist die Grundkündigungsfrist nach § 622 BGB?",
+                    options: ["2 Wochen", "4 Wochen zum 15. oder Monatsende", "1 Monat zum Monatsende", "6 Wochen"],
+                    correct: 1,
+                    explanation: "Die Grundkündigungsfrist beträgt 4 Wochen (28 Tage) zum 15. oder zum Ende eines Kalendermonats."
+                },
+                {
+                    question: "In welcher Form muss eine Kündigung erfolgen?",
+                    options: ["Mündlich", "Per E-Mail", "Schriftlich (Papierform)", "Per Fax"],
+                    correct: 2,
+                    explanation: "Eine Kündigung muss schriftlich erfolgen (§ 623 BGB). E-Mail oder Fax sind unwirksam!"
+                },
+                {
+                    question: "Binnen welcher Frist muss eine außerordentliche Kündigung ausgesprochen werden?",
+                    options: ["1 Woche", "2 Wochen", "4 Wochen", "Sofort"],
+                    correct: 1,
+                    explanation: "Eine außerordentliche Kündigung muss innerhalb von 2 Wochen nach Kenntnisnahme des wichtigen Grundes erfolgen (§ 626 BGB)."
+                },
+                {
+                    question: "Wie lange ist die Kündigungsfrist während der Probezeit im Arbeitsverhältnis?",
+                    options: ["Keine Frist", "2 Wochen", "4 Wochen", "1 Monat"],
+                    correct: 1,
+                    explanation: "Während der Probezeit kann mit einer Frist von 2 Wochen gekündigt werden (§ 622 Abs. 3 BGB)."
+                }
+            ]
+        };
+
+        const flashcardData = {
+            bbig: [
+                { front: "Ausbildender", back: "Das Unternehmen, das Personen ausbilden darf (Vertragspartner). Nicht zu verwechseln mit dem Ausbilder (Person)." },
+                { front: "Ausbilder", back: "Die Person im Unternehmen, die für die praktische Ausbildung verantwortlich ist und die Auszubildenden anleitet." },
+                { front: "Probezeit (Ausbildung)", back: "1-4 Monate (§ 20 BBiG). Während dieser Zeit kann fristlos und ohne Angabe von Gründen gekündigt werden." },
+                { front: "§ 13 BBiG", back: "Regelt die Pflichten des Auszubildenden: Lernpflicht, Sorgfaltspflicht, Gehorsamspflicht, Schweigepflicht, Berichtsheftpflicht." },
+                { front: "Duale Berufsausbildung", back: "Kombination aus theoretischer Bildung (Berufsschule) und praktischer Ausbildung (Betrieb)." }
+            ],
+            arbeitsvertrag: [
+                { front: "NachwG § 2", back: "Mindestinhalt Arbeitsvertrag: Namen, Anschrift, Beginn, Arbeitsort, Tätigkeit, Entgelt, Arbeitszeit, Urlaub, Kündigungsfristen." },
+                { front: "Salvatorische Klausel", back: "§ 139 BGB: Unwirksame Klauseln machen nicht den gesamten Vertrag nichtig - an ihre Stelle treten gesetzliche Bestimmungen." },
+                { front: "Unzulässige Fragen", back: "Familienplanung, Schwangerschaft, Religion, Gewerkschaft, Behinderung (wenn nicht arbeitsrelevant). Dürfen unwahr beantwortet werden." },
+                { front: "Probezeit (Arbeit)", back: "Optional, maximal 6 Monate. Kündigungsfrist: 2 Wochen (§ 622 Abs. 3 BGB)." }
+            ],
+            zeugnisse: [
+                { front: "Note 1 im Zeugnis", back: "'stets zu unserer vollsten Zufriedenheit' - sehr gute Leistung" },
+                { front: "Note 2 im Zeugnis", back: "'stets zu unserer vollen Zufriedenheit' - gute Leistung" },
+                { front: "Note 3 im Zeugnis", back: "'zu unserer vollen Zufriedenheit' - befriedigende Leistung" },
+                { front: "'War bemüht'", back: "Warnsignal! Bedeutet: Hat es versucht, aber nicht geschafft." },
+                { front: "Richtige Reihenfolge", back: "'Vorgesetzten und Kollegen' - Umkehrung deutet auf Probleme mit Vorgesetzten hin." }
+            ],
+            arbeitsschutz: [
+                { front: "JArbSchG", back: "Jugendarbeitsschutzgesetz: Max. 8h/Tag, 40h/Woche, Arbeitszeit 6-20 Uhr, 12h Ruhezeit, 60 Min Pause bei >6h." },
+                { front: "ArbZG", back: "Arbeitszeitgesetz: Max. 8h/Tag (10h möglich), 48h/Woche, 11h Ruhezeit, 30 Min Pause bei >6h." },
+                { front: "TOP-Prinzip", back: "Technisch → Organisatorisch → Persönlich. Reihenfolge der Schutzmaßnahmen im Arbeitsschutz." },
+                { front: "MuSchG Schutzfristen", back: "6 Wochen vor Geburt (relativ), 8 Wochen nach Geburt (absolut), 12 Wochen bei Früh-/Mehrlingsgeburt." },
+                { front: "BUrlG Mindesturlaub", back: "24 Werktage (6-Tage-Woche) bzw. 20 Arbeitstage (5-Tage-Woche). Voller Anspruch nach 6 Monaten." }
+            ],
+            beendigung: [
+                { front: "§ 622 BGB", back: "Grundkündigungsfrist: 4 Wochen zum 15. oder Monatsende. Verlängert sich bei längerer Betriebszugehörigkeit (nur für AG)." },
+                { front: "§ 626 BGB", back: "Außerordentliche Kündigung: Wichtiger Grund erforderlich, innerhalb von 2 Wochen nach Kenntnisnahme." },
+                { front: "§ 623 BGB", back: "Schriftformerfordernis für Kündigung. E-Mail und Fax sind UNWIRKSAM!" },
+                { front: "Befristung ohne Grund", back: "Max. 2 Jahre, max. 3 Verlängerungen (§ 14 TzBfG). Muss schriftlich vereinbart werden." }
+            ]
+        };
+
+        const fillBlankData = [
+            {
+                text: "Die Probezeit im Ausbildungsverhältnis muss mindestens ___ Monat(e) und darf höchstens ___ Monate betragen.",
+                blanks: ["1", "4"],
+                explanation: "§ 20 BBiG regelt die Probezeit mit 1-4 Monaten."
+            },
+            {
+                text: "Die Grundkündigungsfrist nach § 622 BGB beträgt ___ Wochen zum ___ oder zum Monatsende.",
+                blanks: ["4", "15."],
+                explanation: "4 Wochen (28 Tage) zum 15. oder zum Ende eines Kalendermonats."
+            },
+            {
+                text: "Jugendliche dürfen maximal ___ Stunden pro Tag und ___ Stunden pro Woche arbeiten.",
+                blanks: ["8", "40"],
+                explanation: "§ 8 JArbSchG: Max. 8h/Tag und 40h/Woche für Jugendliche."
+            },
+            {
+                text: "Die Ruhezeit zwischen zwei Arbeitstagen beträgt für Erwachsene mindestens ___ Stunden, für Jugendliche mindestens ___ Stunden.",
+                blanks: ["11", "12"],
+                explanation: "ArbZG: 11h für Erwachsene, JArbSchG: 12h für Jugendliche."
+            },
+            {
+                text: "Die Schutzfrist vor der Geburt beträgt ___ Wochen, nach einer Normalgeburt ___ Wochen.",
+                blanks: ["6", "8"],
+                explanation: "MuSchG: 6 Wochen vor, 8 Wochen nach Normalgeburt."
+            }
+        ];
+
+        const matchingData = [
+            {
+                terms: ["§ 20 BBiG", "§ 622 BGB", "§ 626 BGB", "§ 19 JArbSchG"],
+                definitions: ["Probezeit Ausbildung", "Kündigungsfristen", "Außerordentliche Kündigung", "Urlaub Jugendliche"]
+            }
+        ];
+
+        // ============ STATE ============
+        let currentQuiz = [];
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let totalScore = 0;
+        let answeredQuestions = new Set();
+
+        let currentFlashcards = [];
+        let currentFlashcardIndex = 0;
+        let learnedCards = new Set();
+
+        let selectedLeft = null;
+        let matchedPairs = new Set();
+
+        // ============ FUNCTIONS ============
+
+        // Mobile menu
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            menuToggle.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+        });
+
+        // Tabs
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabId === 'quiz') loadQuiz();
+            if (tabId === 'flashcards') loadFlashcards();
+            if (tabId === 'fillblank') loadFillBlanks();
+            if (tabId === 'matching') loadMatching();
+        }
+
+        // ============ QUIZ ============
+        function loadQuiz() {
+            const category = document.getElementById('quizCategory').value;
+            currentQuiz = [];
+
+            if (category === 'all') {
+                Object.values(quizData).forEach(questions => currentQuiz.push(...questions));
+            } else {
+                currentQuiz = [...(quizData[category] || [])];
+            }
+
+            // Shuffle
+            currentQuiz.sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            answeredQuestions.clear();
+
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= currentQuiz.length) {
+                showResult();
+                return;
+            }
+
+            const q = currentQuiz[currentQuestionIndex];
+            const container = document.getElementById('quizContainer');
+
+            container.innerHTML = `
+                <div class="quiz-header">
+                    <span class="quiz-progress">Frage ${currentQuestionIndex + 1} von ${currentQuiz.length}</span>
+                    <span class="quiz-score">${correctAnswers} richtig</span>
+                </div>
+                <div class="question-card">
+                    <p class="question-text"><span class="question-number">Frage ${currentQuestionIndex + 1}:</span> ${q.question}</p>
+                    <div class="options">
+                        ${q.options.map((opt, i) => `
+                            <div class="option" onclick="selectOption(${i})" data-index="${i}">
+                                <span class="option-marker">${String.fromCharCode(65 + i)}</span>
+                                <span>${opt}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="explanation" id="explanation">${q.explanation}</div>
+                </div>
+                <div class="quiz-actions">
+                    <button class="btn btn-secondary" onclick="skipQuestion()" ${answeredQuestions.has(currentQuestionIndex) ? 'disabled' : ''}>Überspringen</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn" disabled>Weiter</button>
+                </div>
+            `;
+        }
+
+        function selectOption(index) {
+            if (answeredQuestions.has(currentQuestionIndex)) return;
+
+            const q = currentQuiz[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            const explanation = document.getElementById('explanation');
+
+            options.forEach((opt, i) => {
+                opt.classList.add('disabled');
+                if (i === q.correct) {
+                    opt.classList.add('correct');
+                } else if (i === index) {
+                    opt.classList.add('wrong');
+                }
+            });
+
+            if (index === q.correct) {
+                correctAnswers++;
+                totalScore += 10;
+                updateScore();
+            }
+
+            explanation.classList.add('show');
+            answeredQuestions.add(currentQuestionIndex);
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function skipQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function showResult() {
+            const percentage = Math.round((correctAnswers / currentQuiz.length) * 100);
+            let resultText = '';
+            let emoji = '';
+
+            if (percentage >= 90) { resultText = 'Ausgezeichnet!'; emoji = '🏆'; }
+            else if (percentage >= 70) { resultText = 'Gut gemacht!'; emoji = '👍'; }
+            else if (percentage >= 50) { resultText = 'Weiter üben!'; emoji = '📚'; }
+            else { resultText = 'Nicht aufgeben!'; emoji = '💪'; }
+
+            document.getElementById('quizContainer').innerHTML = `
+                <div class="result-card">
+                    <div class="result-score">${percentage}%</div>
+                    <div class="result-text">${emoji} ${resultText}</div>
+                    <div class="result-details">
+                        <div class="result-stat correct">
+                            <div class="result-stat-value">${correctAnswers}</div>
+                            <div class="result-stat-label">Richtig</div>
+                        </div>
+                        <div class="result-stat wrong">
+                            <div class="result-stat-value">${currentQuiz.length - correctAnswers}</div>
+                            <div class="result-stat-label">Falsch</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="loadQuiz()">Nochmal versuchen</button>
+                </div>
+            `;
+
+            saveProgress();
+        }
+
+        // ============ FLASHCARDS ============
+        function loadFlashcards() {
+            const category = document.getElementById('flashcardCategory').value;
+            currentFlashcards = [];
+
+            if (category === 'all') {
+                Object.values(flashcardData).forEach(cards => currentFlashcards.push(...cards));
+            } else {
+                currentFlashcards = [...(flashcardData[category] || [])];
+            }
+
+            currentFlashcards.sort(() => Math.random() - 0.5);
+            currentFlashcardIndex = 0;
+            learnedCards.clear();
+            showFlashcard();
+        }
+
+        function showFlashcard() {
+            if (currentFlashcards.length === 0) return;
+
+            const card = currentFlashcards[currentFlashcardIndex];
+            document.getElementById('flashcardQuestion').textContent = card.front;
+            document.getElementById('flashcardAnswer').textContent = card.back;
+            document.getElementById('flashcardProgress').textContent = `Karte ${currentFlashcardIndex + 1} von ${currentFlashcards.length} | Gelernt: ${learnedCards.size}`;
+
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.remove('flipped');
+        }
+
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        function nextFlashcard() {
+            currentFlashcardIndex = (currentFlashcardIndex + 1) % currentFlashcards.length;
+            showFlashcard();
+        }
+
+        function prevFlashcard() {
+            currentFlashcardIndex = (currentFlashcardIndex - 1 + currentFlashcards.length) % currentFlashcards.length;
+            showFlashcard();
+        }
+
+        function markFlashcard(status) {
+            if (status === 'correct') {
+                learnedCards.add(currentFlashcardIndex);
+                totalScore += 5;
+                updateScore();
+            }
+            nextFlashcard();
+        }
+
+        // ============ FILL BLANKS ============
+        function loadFillBlanks() {
+            const container = document.getElementById('fillBlankContainer');
+            container.innerHTML = fillBlankData.map((item, idx) => {
+                let html = item.text;
+                item.blanks.forEach((blank, i) => {
+                    html = html.replace('___', `<input type="text" class="blank-input" data-exercise="${idx}" data-blank="${i}" data-answer="${blank}">`);
+                });
+                return `
+                    <div class="fill-blank-exercise" style="margin-bottom: 30px; padding: 20px; background: #fff; border-radius: 8px; box-shadow: var(--shadow);">
+                        <p class="fill-blank-text">${html}</p>
+                        <div class="explanation" id="fb-explanation-${idx}" style="display: none;">${item.explanation}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function checkFillBlanks() {
+            const inputs = document.querySelectorAll('.blank-input');
+            let allCorrect = true;
+
+            inputs.forEach(input => {
+                const answer = input.dataset.answer.toLowerCase().trim();
+                const userAnswer = input.value.toLowerCase().trim();
+
+                if (userAnswer === answer) {
+                    input.classList.add('correct');
+                    input.classList.remove('wrong');
+                } else {
+                    input.classList.add('wrong');
+                    input.classList.remove('correct');
+                    allCorrect = false;
+                }
+
+                const exerciseIdx = input.dataset.exercise;
+                document.getElementById(`fb-explanation-${exerciseIdx}`).style.display = 'block';
+            });
+
+            if (allCorrect) {
+                totalScore += 20;
+                updateScore();
+            }
+        }
+
+        function resetFillBlanks() {
+            document.querySelectorAll('.blank-input').forEach(input => {
+                input.value = '';
+                input.classList.remove('correct', 'wrong');
+            });
+            document.querySelectorAll('[id^="fb-explanation"]').forEach(el => el.style.display = 'none');
+        }
+
+        // ============ MATCHING ============
+        function loadMatching() {
+            const data = matchingData[0];
+            const container = document.getElementById('matchingContainer');
+
+            const shuffledDefs = [...data.definitions].sort(() => Math.random() - 0.5);
+
+            container.innerHTML = `
+                <div class="matching-column">
+                    <h4>Begriffe</h4>
+                    ${data.terms.map((term, i) => `
+                        <div class="matching-item matching-left" data-index="${i}" onclick="selectMatchingLeft(this)">
+                            <span class="matching-number">${i + 1}</span>
+                            ${term}
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="matching-column">
+                    <h4>Definitionen</h4>
+                    ${shuffledDefs.map((def, i) => `
+                        <div class="matching-item matching-right" data-original="${data.definitions.indexOf(def)}" onclick="selectMatchingRight(this)">
+                            ${def}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            selectedLeft = null;
+            matchedPairs.clear();
+        }
+
+        function selectMatchingLeft(el) {
+            if (el.classList.contains('matched')) return;
+
+            document.querySelectorAll('.matching-left').forEach(item => item.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedLeft = el;
+        }
+
+        function selectMatchingRight(el) {
+            if (!selectedLeft || el.classList.contains('matched')) return;
+
+            const leftIndex = parseInt(selectedLeft.dataset.index);
+            const rightOriginal = parseInt(el.dataset.original);
+
+            if (leftIndex === rightOriginal) {
+                selectedLeft.classList.remove('selected');
+                selectedLeft.classList.add('matched');
+                el.classList.add('matched');
+                matchedPairs.add(leftIndex);
+                totalScore += 10;
+                updateScore();
+
+                if (matchedPairs.size === matchingData[0].terms.length) {
+                    setTimeout(() => alert('Alle richtig! 🎉'), 300);
+                }
+            } else {
+                el.classList.add('wrong');
+                setTimeout(() => el.classList.remove('wrong'), 500);
+            }
+
+            selectedLeft = null;
+            document.querySelectorAll('.matching-left').forEach(item => item.classList.remove('selected'));
+        }
+
+        function resetMatching() {
+            loadMatching();
+        }
+
+        // ============ SCORE & STORAGE ============
+        function updateScore() {
+            document.getElementById('totalScore').textContent = totalScore;
+            saveProgress();
+        }
+
+        function saveProgress() {
+            const progress = JSON.parse(localStorage.getItem('wirtschaftsrecht_progress') || '{}');
+            progress.quizScore = totalScore;
+            localStorage.setItem('wirtschaftsrecht_progress', JSON.stringify(progress));
+        }
+
+        function loadStoredProgress() {
+            const progress = JSON.parse(localStorage.getItem('wirtschaftsrecht_progress') || '{}');
+            totalScore = progress.quizScore || 0;
+            updateScore();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStoredProgress();
+            loadQuiz();
+        });
+    </script>
+</body>
+</html>
