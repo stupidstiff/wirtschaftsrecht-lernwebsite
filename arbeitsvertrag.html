@@ -23,8 +23,8 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--dark); background: var(--light); }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--dark); background: var(--light); overflow-x: hidden; }
 
         .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh; background: var(--white); box-shadow: var(--shadow); overflow-y: auto; z-index: 1000; transition: transform 0.3s ease; }
         .sidebar-header { background: var(--gradient); color: var(--white); padding: 20px; text-align: center; }
@@ -88,6 +88,9 @@
             .page-header h1 { font-size: 1.8em; }
             .content-wrapper { padding: 20px 15px; }
             h2 { font-size: 1.5em; }
+            table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .nav-buttons { flex-wrap: wrap; gap: 10px; }
+            .nav-btn { padding: 10px 16px; font-size: 0.9em; flex: 1 1 auto; justify-content: center; text-align: center; }
         }
     </style>
 </head>
